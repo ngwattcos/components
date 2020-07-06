@@ -82,10 +82,10 @@ class CheckBoxAdapter implements MDCCheckboxAdapter {
     return CheckBoxAdapter._adapter;
   }
 
-  addClass(className) {
+  addClass(className: string) {
     return this._delegate.setClass(className, true);
   }
-  removeClass(className) {
+  removeClass(className: string) {
     return this._delegate.setClass(className, false);
   }
   forceLayout() {
@@ -103,17 +103,17 @@ class CheckBoxAdapter implements MDCCheckboxAdapter {
   isIndeterminate() {
     return this._delegate.indeterminate;
   }
-  removeNativeControlAttr(attr)  {
+  removeNativeControlAttr(attr: string)  {
     if (!this._delegate.getAttrBlacklist().has(attr)) {
       this._delegate._nativeCheckbox.nativeElement.removeAttribute(attr);
     }
   }
-  setNativeControlAttr(attr, value)  {
+  setNativeControlAttr(attr: string, value: string)  {
     if (!this._delegate.getAttrBlacklist().has(attr)) {
       this._delegate._nativeCheckbox.nativeElement.setAttribute(attr, value);
     }
   }
-  setNativeControlDisabled(disabled) {
+  setNativeControlDisabled(disabled: boolean) {
     this._delegate.disabled = disabled;
   }
 }
