@@ -60,26 +60,10 @@ const RIPPLE_ANIMATION_CONFIG: RippleAnimationConfig = {
 /** Singleton check box adapter. */
 class CheckBoxAdapter implements MDCCheckboxAdapter {
 
-  private static _adapter: CheckBoxAdapter;
-
   private _delegate: MatCheckbox;
 
-  private constructor(delegate: MatCheckbox) {
+  constructor(delegate: MatCheckbox) {
     this._delegate = delegate;
-  }
-
-  useDelegate(delegate: MatCheckbox) {
-    if (!this._delegate) {
-      CheckBoxAdapter._adapter = new CheckBoxAdapter(delegate);
-    } else {
-      this._delegate = delegate;
-    }
-
-    return CheckBoxAdapter.getAdapter();
-  }
-
-  static getAdapter() {
-    return CheckBoxAdapter._adapter;
   }
 
   addClass(className: string) {
@@ -117,9 +101,6 @@ class CheckBoxAdapter implements MDCCheckboxAdapter {
     this._delegate.disabled = disabled;
   }
 }
-
-const _singletonCheckboxAdapter = CheckBoxAdapter.getAdapter();
-
 
 @Component({
   selector: 'mat-checkbox',
@@ -289,7 +270,8 @@ export class MatCheckbox implements AfterViewInit, OnDestroy, ControlValueAccess
     // ripple, which we do ourselves instead.
     this.tabIndex = parseInt(tabIndex) || 0;
     this._checkboxFoundation = new MDCCheckboxFoundation(
-      _singletonCheckboxAdapter.useDelegate(this));
+      new CheckBoxAdapter(this)
+    );
 
     this._options = this._options || {};
 

@@ -67,26 +67,10 @@ const RIPPLE_ANIMATION_CONFIG: RippleAnimationConfig = {
 
 class RadioAdapter implements MDCRadioAdapter {
 
-  private static _adapter: RadioAdapter;
-
   private _delegate: MatRadioButton;
 
-  private constructor(delegate: MatRadioButton) {
+  constructor(delegate: MatRadioButton) {
     this._delegate = delegate;
-  }
-
-  useDelegate(delegate: MatRadioButton) {
-    if (!this._delegate) {
-      RadioAdapter._adapter = new RadioAdapter(delegate);
-    } else {
-      this._delegate = delegate;
-    }
-
-    return RadioAdapter.getAdapter();
-  }
-
-  static getAdapter() {
-    return RadioAdapter._adapter;
   }
 
   addClass(className: string) {
@@ -102,8 +86,6 @@ class RadioAdapter implements MDCRadioAdapter {
     }
   }
 }
-
-const _singletonRadioAdapter = RadioAdapter.getAdapter();
 
 /**
  * A group of radio buttons. May contain one or more `<mat-radio-button>` elements.
@@ -156,7 +138,9 @@ export class MatRadioButton extends _MatRadioButtonBase implements AfterViewInit
   /** Configuration for the underlying ripple. */
   _rippleAnimation: RippleAnimationConfig = RIPPLE_ANIMATION_CONFIG;
 
-  _radioFoundation = new MDCRadioFoundation(_singletonRadioAdapter.useDelegate(this));
+  _radioFoundation = new MDCRadioFoundation(
+    new RadioAdapter(this)
+  );
   _classes: {[key: string]: boolean} = {};
 
   constructor(@Optional() @Inject(MAT_RADIO_GROUP) radioGroup: MatRadioGroup,
