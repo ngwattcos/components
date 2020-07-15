@@ -91,6 +91,17 @@ describe('CdkDrag', () => {
         expect(dragElement.getAttribute('transform')).toBe('translate(50 100)');
       }));
 
+      it('should drag an SVG element freely to a particular position in SVG viewBox coordinates',
+        fakeAsync(() => {
+          const fixture = createComponent(StandaloneDraggableSvgWithViewBox);
+          fixture.detectChanges();
+          const dragElement = fixture.componentInstance.dragElement.nativeElement;
+
+          expect(dragElement.getAttribute('transform')).toBeFalsy();
+          dragElementViaMouse(fixture, dragElement, 50, 100);
+          expect(dragElement.getAttribute('transform')).toBe('translate(100 200)');
+        }));
+
       it('should drag an element freely to a particular position when the page is scrolled',
         fakeAsync(() => {
           const fixture = createComponent(StandaloneDraggable);
@@ -543,6 +554,30 @@ describe('CdkDrag', () => {
       expect(dragRoot.style.transform).toBe('translate3d(50px, 100px, 0px)');
       expect(dragElement.style.transform).toBeFalsy();
     }));
+
+    it('should be able to set the cdkDrag element as handle if it has a different root element',
+      fakeAsync(() => {
+        const fixture = createComponent(DraggableWithAlternateRootAndSelfHandle);
+        fixture.detectChanges();
+
+        const dragRoot = fixture.componentInstance.dragRoot.nativeElement;
+        const dragElement = fixture.componentInstance.dragElement.nativeElement;
+
+        expect(dragRoot.style.transform).toBeFalsy();
+        expect(dragElement.style.transform).toBeFalsy();
+
+        // Try dragging the root. This should be possible since the drag element is the handle.
+        dragElementViaMouse(fixture, dragRoot, 50, 100);
+
+        expect(dragRoot.style.transform).toBeFalsy();
+        expect(dragElement.style.transform).toBeFalsy();
+
+        // Drag via the drag element which acts as the handle.
+        dragElementViaMouse(fixture, dragElement, 50, 100);
+
+        expect(dragRoot.style.transform).toBe('translate3d(50px, 100px, 0px)');
+        expect(dragElement.style.transform).toBeFalsy();
+      }));
 
     it('should preserve the initial transform if the root element changes', fakeAsync(() => {
       const fixture = createComponent(DraggableWithAlternateRoot);
@@ -3590,6 +3625,25 @@ describe('CdkDrag', () => {
       expect(list.scrollLeft).toBeLessThan(initialScrollDistance);
     }));
 
+    it('should be able to start auto scrolling with a drag boundary', fakeAsync(() => {
+      const fixture = createComponent(DraggableInScrollableHorizontalDropZone);
+      fixture.componentInstance.boundarySelector = '.drop-list';
+      fixture.detectChanges();
+      const item = fixture.componentInstance.dragItems.first.element.nativeElement;
+      const list = fixture.componentInstance.dropInstance.element.nativeElement;
+      const listRect = list.getBoundingClientRect();
+
+      expect(list.scrollLeft).toBe(0);
+
+      startDraggingViaMouse(fixture, item);
+      dispatchMouseEvent(document, 'mousemove', listRect.left + listRect.width,
+        listRect.top + listRect.height / 2);
+      fixture.detectChanges();
+      tickAnimationFrames(20);
+
+      expect(list.scrollLeft).toBeGreaterThan(0);
+    }));
+
     it('should stop scrolling if the user moves their pointer away', fakeAsync(() => {
       const fixture = createComponent(DraggableInScrollableVerticalDropZone);
       fixture.detectChanges();
@@ -5313,6 +5367,19 @@ class StandaloneDraggableSvg {
 
 @Component({
   template: `
+    <svg width="400px" height="400px" viewBox="0 0 800 800"><g
+      cdkDrag
+      #dragElement>
+      <circle fill="red" r="50" cx="50" cy="50"/>
+    </g></svg>
+  `
+})
+class StandaloneDraggableSvgWithViewBox {
+  @ViewChild('dragElement') dragElement: ElementRef<SVGElement>;
+}
+
+@Component({
+  template: `
     <div #dragElement cdkDrag
       style="width: 100px; height: 100px; background: red; position: relative">
       <div #handleElement cdkDragHandle style="width: 10px; height: 10px; background: green;"></div>
@@ -5555,6 +5622,7 @@ const HORIZONTAL_FIXTURE_TEMPLATE = `
       *ngFor="let item of items"
       [style.width.px]="item.width"
       [style.margin-right.px]="item.margin"
+      [cdkDragBoundary]="boundarySelector"
       cdkDrag>{{item.value}}</div>
   </div>
 `;
@@ -5573,6 +5641,7 @@ class DraggableInHorizontalDropZone {
     {value: 'Two', width: ITEM_WIDTH, margin: 0},
     {value: 'Three', width: ITEM_WIDTH, margin: 0}
   ];
+  boundarySelector: string;
   droppedSpy = jasmine.createSpy('dropped spy').and.callFake((event: CdkDragDrop<string[]>) => {
     moveItemInArray(this.items, event.previousIndex, event.currentIndex);
   });
@@ -6275,6 +6344,25 @@ class DraggableInHorizontalFlexDropZoneWithMatchSizePreview {
   `
 })
 class ConnectedDropZonesWithIntermediateSibling extends ConnectedDropZones {
+}
+
+
+@Component({
+  template: `
+    <div #dragRoot class="alternate-root" style="width: 200px; height: 200px; background: hotpink">
+      <div
+        cdkDrag
+        cdkDragRootElement=".alternate-root"
+        cdkDragHandle
+        #dragElement
+        style="width: 100px; height: 100px; background: red;"></div>
+    </div>
+  `
+})
+class DraggableWithAlternateRootAndSelfHandle {
+  @ViewChild('dragElement') dragElement: ElementRef<HTMLElement>;
+  @ViewChild('dragRoot') dragRoot: ElementRef<HTMLElement>;
+  @ViewChild(CdkDrag) dragInstance: CdkDrag;
 }
 
 

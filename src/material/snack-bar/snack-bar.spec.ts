@@ -1,32 +1,26 @@
+import {LiveAnnouncer} from '@angular/cdk/a11y';
+import {OverlayContainer} from '@angular/cdk/overlay';
+import {CommonModule} from '@angular/common';
 import {
-  inject,
-  ComponentFixture,
-  TestBed,
-  fakeAsync,
-  tick,
-  flush,
-} from '@angular/core/testing';
-import {
-  NgModule,
   Component,
   Directive,
+  Inject,
+  NgModule,
+  TemplateRef,
   ViewChild,
   ViewContainerRef,
-  Inject,
-  TemplateRef,
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {ComponentFixture, fakeAsync, flush, inject, TestBed, tick} from '@angular/core/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
-import {OverlayContainer} from '@angular/cdk/overlay';
-import {LiveAnnouncer} from '@angular/cdk/a11y';
 import {
-  MatSnackBarModule,
-  MatSnackBar,
-  MatSnackBarConfig,
-  MatSnackBarRef,
-  SimpleSnackBar,
   MAT_SNACK_BAR_DATA,
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
+  MatSnackBar,
+  MatSnackBarConfig,
+  MatSnackBarContainer,
+  MatSnackBarModule,
+  MatSnackBarRef,
+  SimpleSnackBar,
 } from './index';
 
 describe('MatSnackBar', () => {
@@ -249,12 +243,13 @@ describe('MatSnackBar', () => {
     let snackBarRef = snackBar.open(simpleMessage, undefined, config);
 
     viewContainerFixture.detectChanges();
-    expect(snackBarRef.containerInstance._animationState)
+    const container = snackBarRef.containerInstance as MatSnackBarContainer;
+    expect(container._animationState)
         .toBe('visible', `Expected the animation state would be 'visible'.`);
     snackBarRef.dismiss();
 
     viewContainerFixture.detectChanges();
-    expect(snackBarRef.containerInstance._animationState)
+    expect(container._animationState)
         .toBe('hidden', `Expected the animation state would be 'hidden'.`);
   });
 
@@ -264,7 +259,8 @@ describe('MatSnackBar', () => {
     snackBarRef.dismiss();
 
     viewContainerFixture.detectChanges();
-    expect(snackBarRef.containerInstance._animationState)
+    const container = snackBarRef.containerInstance as MatSnackBarContainer;
+    expect(container._animationState)
         .toBe('hidden', `Expected the animation state would be 'hidden'.`);
   });
 
@@ -275,7 +271,8 @@ describe('MatSnackBar', () => {
     let dismissCompleteSpy = jasmine.createSpy('dismiss complete spy');
 
     viewContainerFixture.detectChanges();
-    expect(snackBarRef.containerInstance._animationState)
+    const container1 = snackBarRef.containerInstance as MatSnackBarContainer;
+    expect(container1._animationState)
         .toBe('visible', `Expected the animation state would be 'visible'.`);
 
     let config2 = {viewContainerRef: testViewContainerRef};
@@ -286,9 +283,10 @@ describe('MatSnackBar', () => {
     flush();
 
     expect(dismissCompleteSpy).toHaveBeenCalled();
-    expect(snackBarRef.containerInstance._animationState)
+    const container2 = snackBarRef2.containerInstance as MatSnackBarContainer;
+    expect(container1._animationState)
         .toBe('hidden', `Expected the animation state would be 'hidden'.`);
-    expect(snackBarRef2.containerInstance._animationState)
+    expect(container2._animationState)
         .toBe('visible', `Expected the animation state would be 'visible'.`);
   }));
 
@@ -308,7 +306,8 @@ describe('MatSnackBar', () => {
 
     // Wait for the snackbar open animation to finish.
     flush();
-    expect(snackBarRef.containerInstance._animationState)
+    const container = snackBarRef.containerInstance as MatSnackBarContainer;
+    expect(container._animationState)
         .toBe('visible', `Expected the animation state would be 'visible'.`);
   }));
 
