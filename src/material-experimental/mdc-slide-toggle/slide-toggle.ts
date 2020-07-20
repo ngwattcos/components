@@ -49,23 +49,30 @@ const RIPPLE_ANIMATION_CONFIG: RippleAnimationConfig = {
 };
 
 class SlideToggleAdapter implements MDCSwitchAdapter {
-  constructor(private readonly _delegate: MatSlideToggle) {}
 
-    addClass(className: string) {
-      return this._delegate._switchElement.nativeElement.classList.add(className);
-    }
-    removeClass(className: string) {
-      return this._delegate._switchElement.nativeElement.classList.remove(className);
-    }
-    setNativeControlChecked(checked: boolean) {
-      this._delegate._checked = checked;
-    }
-    setNativeControlDisabled(disabled: boolean) {
-      this._delegate._disabled = disabled;
-    }
-    setNativeControlAttr(name: string, value: string) {
-      this._delegate._inputElement.nativeElement.setAttribute(name, value);
-    }
+  private _switchNativeElement: HTMLElement;
+  private _inputNativeElement: HTMLElement;
+
+  constructor(private readonly _delegate: MatSlideToggle) {
+    this._switchNativeElement = _delegate._switchElement.nativeElement;
+    this._inputNativeElement = _delegate._inputElement.nativeElement;
+  }
+
+  addClass(className: string) {
+    return this._switchNativeElement.classList.add(className);
+  }
+  removeClass(className: string) {
+    return this._switchNativeElement.classList.remove(className);
+  }
+  setNativeControlChecked(checked: boolean) {
+    this._delegate.checked = checked;
+  }
+  setNativeControlDisabled(disabled: boolean) {
+    this._delegate.disabled = disabled;
+  }
+  setNativeControlAttr(name: string, value: string) {
+    this._inputNativeElement.setAttribute(name, value);
+  }
 }
 
 /** @docs-private */
@@ -114,7 +121,7 @@ export class MatSlideToggle implements ControlValueAccessor, AfterViewInit, OnDe
 
   private _uniqueId: string = `mat-mdc-slide-toggle-${++nextUniqueId}`;
   private _required: boolean = false;
-  _checked: boolean = false;
+  private _checked: boolean = false;
   private _foundation: MDCSwitchFoundation;
   private _adapter: MDCSwitchAdapter;
 
@@ -188,7 +195,7 @@ export class MatSlideToggle implements ControlValueAccessor, AfterViewInit, OnDe
       this._foundation.setDisabled(this._disabled);
     }
   }
-  _disabled = false;
+  private _disabled = false;
 
   /** An event will be dispatched each time the slide-toggle changes its value. */
   @Output() readonly change: EventEmitter<MatSlideToggleChange> =
