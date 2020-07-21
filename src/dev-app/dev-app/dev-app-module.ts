@@ -17,6 +17,7 @@ import {RouterModule} from '@angular/router';
 import {DevApp404} from './dev-app-404';
 import {DevAppHome} from './dev-app-home';
 import {DevAppLayout} from './dev-app-layout';
+import {WindowRefService} from './windowcopy.service';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import {DevAppLayout} from './dev-app-layout';
   ],
   declarations: [DevAppLayout, DevAppHome, DevApp404],
   exports: [DevAppLayout],
+  providers: [WindowRefService]
 })
 export class DevAppModule {
 }
