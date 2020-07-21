@@ -9,7 +9,9 @@ export interface WindowPerformanceTest extends Window {
 }
 
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 
 export class WindowRefService {
   static get nativeWindow() {

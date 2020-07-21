@@ -292,8 +292,7 @@ export class MatCheckbox implements AfterViewInit, OnDestroy, ControlValueAccess
 
     // update global elapsed time counter
     let window: WindowPerformanceTest = WindowRefService.nativeWindow;
-    window._totalPerformanceTime = window._totalPerformanceTime + this._endTime || this._endTime;
-    alert(window._totalPerformanceTime);
+    window._totalPerformanceTime = window._totalPerformanceTime + this._initTime || this._initTime;
   }
 
   getAttrBlacklist() {
