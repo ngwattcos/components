@@ -93,7 +93,7 @@ export class MatInkBarFoundation {
   private _fitToContent = false;
   private _adapter: MDCTabIndicatorAdapter;
 
-  constructor(private _hostElement: HTMLElement, private _document: Document) {
+  constructor(readonly _hostElement: HTMLElement, private _document: Document) {
     this._adapter = new TabIndicatorAdapter(this);
     this._foundation = new MDCSlidingTabIndicatorFoundation(this._adapter);
   }
