@@ -13,21 +13,27 @@ import {
   MDCTabIndicatorFoundation
 } from '@material/tab-indicator';
 
+/** @docs-private */
 class TabIndicatorAdapter implements MDCTabIndicatorAdapter {
+
   constructor(private readonly _delegate: MatInkBarFoundation) {}
+
   addClass(className: string) {
     if (!this._delegate._destroyed) {
       this._delegate._hostElement.classList.add(className);
     }
   }
+
   removeClass(className: string) {
     if (!this._delegate._destroyed) {
       this._delegate._hostElement.classList.remove(className);
     }
   }
+
   setContentStyleProperty(propName: string, value: string | null) {
     this._delegate._inkBarContentElement.style.setProperty(propName, value);
   }
+
   computeContentClientRect() {
     // `getBoundingClientRect` isn't available on the server.
     return this._delegate._destroyed ||
@@ -35,6 +41,7 @@ class TabIndicatorAdapter implements MDCTabIndicatorAdapter {
       width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0
     } : this._delegate._inkBarContentElement.getBoundingClientRect();
   }
+
 }
 
 /**
@@ -94,8 +101,7 @@ export class MatInkBarFoundation {
   private _adapter: MDCTabIndicatorAdapter;
 
   constructor(readonly _hostElement: HTMLElement, private _document: Document) {
-    this._adapter = new TabIndicatorAdapter(this);
-    this._foundation = new MDCSlidingTabIndicatorFoundation(this._adapter);
+    this._foundation = new MDCSlidingTabIndicatorFoundation(new TabIndicatorAdapter(this));
   }
 
   /** Aligns the ink bar to the current item. */
