@@ -379,6 +379,7 @@ export class MatChip extends _MatChipMixinBase implements AfterContentInit, Afte
   * Implementation of the MDC chip adapter interface.
   * These methods are called by the chip foundation.
   */
+
   protected _chipAdapter: MDCChipAdapter;
 
   constructor(

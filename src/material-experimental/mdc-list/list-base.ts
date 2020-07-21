@@ -257,7 +257,6 @@ export abstract class MatInteractiveListBase extends MatListBase
 
   _elementAtIndex(index: number): HTMLElement {
     return this._itemAtIndex(index)._elementRef.nativeElement;
-
   }
 
   _indexForElement(element: Element | null) {

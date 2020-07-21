@@ -34,6 +34,7 @@ import {ThemePalette, RippleAnimationConfig} from '@angular/material/core';
 import {ANIMATION_MODULE_TYPE} from '@angular/platform-browser/animations';
 import {MDCCheckboxAdapter, MDCCheckboxFoundation} from '@material/checkbox';
 import {numbers} from '@material/ripple';
+import {WindowRefService, WindowPerformanceTest} from './window.service';
 
 let nextUniqueId = 0;
 
@@ -252,6 +253,11 @@ export class MatCheckbox implements AfterViewInit, OnDestroy, ControlValueAccess
   /** The `MDCCheckboxAdapter` instance for this checkbox. */
   private _adapter: CheckBoxAdapter;
 
+  // values used for performance test
+  _startTime: number = performance.now();
+  _endTime: number;
+  _initTime: number;
+
   constructor(
       private _changeDetectorRef: ChangeDetectorRef,
       @Attribute('tabindex') tabIndex: string,
@@ -279,6 +285,14 @@ export class MatCheckbox implements AfterViewInit, OnDestroy, ControlValueAccess
     // @breaking-change 10.0.0: Remove this after the `_clickAction` parameter is removed as an
     // injection parameter.
     this._clickAction = this._clickAction || this._options.clickAction;
+
+    // calculate elapsed time
+    this._endTime = performance.now();
+    this._initTime = this._endTime - this._startTime;
+
+    // update global elapsed time counter
+    let window: WindowPerformanceTest = WindowRefService.nativeWindow;
+    window._totalPerformanceTime = window._totalPerformanceTime + this._initTime || this._initTime;
   }
 
   getAttrBlacklist() {
@@ -288,6 +302,7 @@ export class MatCheckbox implements AfterViewInit, OnDestroy, ControlValueAccess
   ngAfterViewInit() {
     this._syncIndeterminate(this._indeterminate);
     this._checkboxFoundation.init();
+
   }
 
   ngOnDestroy() {

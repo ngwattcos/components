@@ -17,7 +17,6 @@ import {RouterModule} from '@angular/router';
 import {DevApp404} from './dev-app-404';
 import {DevAppHome} from './dev-app-home';
 import {DevAppLayout} from './dev-app-layout';
-
 @NgModule({
   imports: [
     CommonModule,
@@ -29,7 +28,7 @@ import {DevAppLayout} from './dev-app-layout';
     RouterModule,
   ],
   declarations: [DevAppLayout, DevAppHome, DevApp404],
-  exports: [DevAppLayout],
+  exports: [DevAppLayout]
 })
 export class DevAppModule {
 }
