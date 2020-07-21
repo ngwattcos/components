@@ -16,24 +16,24 @@ import {
 class TabIndicatorAdapter implements MDCTabIndicatorAdapter {
   constructor(private readonly _delegate: MatInkBarFoundation) {}
   addClass(className: string) {
-    if (!this._delegate._destroyed) {
-      this._delegate._hostElement.classList.add(className);
+    if (!this._delegate.getDestroyed()) {
+      this._delegate.getHostElement().classList.add(className);
     }
   }
   removeClass(className: string) {
-    if (!this._delegate._destroyed) {
-      this._delegate._hostElement.classList.remove(className);
+    if (!this._delegate.getDestroyed()) {
+      this._delegate.getHostElement().classList.remove(className);
     }
   }
   setContentStyleProperty(propName: string, value: string | null) {
-    this._delegate._inkBarContentElement.style.setProperty(propName, value);
+    this._delegate.getInkBarContentElement().style.setProperty(propName, value);
   }
   computeContentClientRect() {
     // `getBoundingClientRect` isn't available on the server.
-    return this._delegate._destroyed ||
-      !this._delegate._inkBarContentElement.getBoundingClientRect ? {
+    return this._delegate.getDestroyed() ||
+      !this._delegate.getInkBarContentElement().getBoundingClientRect ? {
       width: 0, height: 0, top: 0, left: 0, right: 0, bottom: 0
-    } : this._delegate._inkBarContentElement.getBoundingClientRect();
+    } : this._delegate.getInkBarContentElement().getBoundingClientRect();
   }
 }
 
@@ -93,7 +93,7 @@ export class MatInkBarFoundation {
   private _fitToContent = false;
   private _adapter: MDCTabIndicatorAdapter;
 
-  constructor(readonly _hostElement: HTMLElement, private _document: Document) {
+  constructor(private _hostElement: HTMLElement, private _document: Document) {
     this._adapter = new TabIndicatorAdapter(this);
     this._foundation = new MDCSlidingTabIndicatorFoundation(this._adapter);
   }
@@ -144,6 +144,17 @@ export class MatInkBarFoundation {
     }
   }
 
+  getDestroyed() {
+    return this._destroyed;
+  }
+
+  getHostElement() {
+    return this._hostElement;
+  }
+
+  getInkBarContentElement() {
+    return this._inkBarContentElement;
+  }
 
   /**
    * Gets whether the ink bar should be appended to the content, which will cause the ink bar
