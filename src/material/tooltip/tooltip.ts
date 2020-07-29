@@ -40,6 +40,7 @@ import {
   ViewEncapsulation,
   AfterViewInit,
 } from '@angular/core';
+import {_CoalescedStyleScheduler} from './coalesced-style-scheduler';
 import {Observable, Subject} from 'rxjs';
 import {take, takeUntil} from 'rxjs/operators';
 
@@ -665,7 +666,10 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     '[style.zoom]': '_visibility === "visible" ? 1 : null',
     '(body:click)': 'this._handleBodyInteraction()',
     'aria-hidden': 'true',
-  }
+  },
+  providers: [
+    _CoalescedStyleScheduler
+  ]
 })
 export class TooltipComponent implements OnDestroy {
   /** Message to display in the tooltip */
