@@ -152,7 +152,10 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
   @Input('matTooltipPosition')
   get position(): TooltipPosition { return this._position; }
   set position(value: TooltipPosition) {
+    console.log('scheduling set postion');
     this._coalescedStyleScheduler.schedule(() => {
+    console.log('\tset postion');
+
       if (value !== this._position) {
         this._position = value;
 
@@ -173,7 +176,9 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
   @Input('matTooltipDisabled')
   get disabled(): boolean { return this._disabled; }
   set disabled(value) {
+    console.log('scheduling disable');
     this._coalescedStyleScheduler.schedule(() => {
+      console.log('\tset disable');
       this._disabled = coerceBooleanProperty(value);
 
       // If tooltip is disabled, hide immediately.
@@ -217,11 +222,15 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     this._message = value != null ? `${value}`.trim() : '';
 
     if (!this._message && this._isTooltipVisible()) {
+      console.log('hide tooltip (set message)');
       this._coalescedStyleScheduler.schedule(() => {
+        console.log('\thiding tooltip (set message)');
         this.hide(0);
       });
     } else {
+      console.log('scheduling set tooltip message');
       this._coalescedStyleScheduler.schedule(() => {
+      console.log('\tset tooltip message');
         this._setupPointerEnterEventsIfNeeded();
         this._updateTooltipMessage();
         this._ngZone.runOutsideAngular(() => {
@@ -244,7 +253,9 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
   @Input('matTooltipClass')
   get tooltipClass() { return this._tooltipClass; }
   set tooltipClass(value: string|string[]|Set<string>|{[key: string]: any}) {
+    console.log('scheduling set tooltip class');
     this._coalescedStyleScheduler.schedule(() => {
+      console.log('\tset tooltip class');
       this._tooltipClass = value;
       if (this._tooltipInstance) {
         this._setTooltipClass(this._tooltipClass);
@@ -344,8 +355,9 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
       !this._tooltipInstance!._showTimeoutId && !this._tooltipInstance!._hideTimeoutId)) {
         return;
     }
-
+    console.log('scheduling show()');
     this._coalescedStyleScheduler.schedule(() => {
+      console.log('running show()');
       const overlayRef = this._createOverlay();
       this._detach();
       this._portal = this._portal || new ComponentPortal(TooltipComponent, this._viewContainerRef);
