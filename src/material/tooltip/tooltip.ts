@@ -215,15 +215,19 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     if (!this._message && this._isTooltipVisible()) {
       this.hide(0);
     } else {
-      this._setupPointerEnterEventsIfNeeded();
-      this._updateTooltipMessage();
-      this._ngZone.runOutsideAngular(() => {
-        // The `AriaDescriber` has some functionality that avoids adding a description if it's the
-        // same as the `aria-label` of an element, however we can't know whether the tooltip trigger
-        // has a data-bound `aria-label` or when it'll be set for the first time. We can avoid the
-        // issue by deferring the description by a tick so Angular has time to set the `aria-label`.
-        Promise.resolve().then(() => {
-          this._ariaDescriber.describe(this._elementRef.nativeElement, this.message);
+      this._coalescedStyleScheduler.schedule(() => {
+        this._setupPointerEnterEventsIfNeeded();
+        this._updateTooltipMessage();
+        this._ngZone.runOutsideAngular(() => {
+          // The `AriaDescriber` has some functionality that avoids adding a description if it's the
+          // same as the `aria-label` of an element, however we can't know
+          // whether the tooltip trigger
+          // has a data-bound `aria-label` or when it'll be set for the first time. We can avoid the
+          // issue by deferring the description by a tick so Angular has
+          // time to set the `aria-label`.
+          Promise.resolve().then(() => {
+            this._ariaDescriber.describe(this._elementRef.nativeElement, this.message);
+          });
         });
       });
     }
@@ -259,6 +263,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     private _platform: Platform,
     private _ariaDescriber: AriaDescriber,
     private _focusMonitor: FocusMonitor,
+    private _coalescedStyleScheduler: _CoalescedStyleScheduler,
     @Inject(MAT_TOOLTIP_SCROLL_STRATEGY) scrollStrategy: any,
     @Optional() private _dir: Directionality,
     @Optional() @Inject(MAT_TOOLTIP_DEFAULT_OPTIONS)
@@ -332,28 +337,35 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
         return;
     }
 
-    const overlayRef = this._createOverlay();
-    this._detach();
-    this._portal = this._portal || new ComponentPortal(TooltipComponent, this._viewContainerRef);
-    this._tooltipInstance = overlayRef.attach(this._portal).instance;
-    this._tooltipInstance.afterHidden()
-      .pipe(takeUntil(this._destroyed))
-      .subscribe(() => this._detach());
-    this._setTooltipClass(this._tooltipClass);
-    this._updateTooltipMessage();
-    this._tooltipInstance!.show(delay);
+    this._coalescedStyleScheduler.schedule(() => {
+      const overlayRef = this._createOverlay();
+      this._detach();
+      this._portal = this._portal || new ComponentPortal(TooltipComponent, this._viewContainerRef);
+      this._tooltipInstance = overlayRef.attach(this._portal).instance;
+      this._tooltipInstance.afterHidden()
+        .pipe(takeUntil(this._destroyed))
+        .subscribe(() => this._detach());
+      this._setTooltipClass(this._tooltipClass);
+      this._updateTooltipMessage();
+      this._tooltipInstance!.show(delay);
+    });
   }
 
   /** Hides the tooltip after the delay in ms, defaults to tooltip-delay-hide or 0ms if no input */
   hide(delay: number = this.hideDelay): void {
-    if (this._tooltipInstance) {
-      this._tooltipInstance.hide(delay);
-    }
+    this._coalescedStyleScheduler.schedule(() => {
+
+      if (this._tooltipInstance) {
+        this._tooltipInstance.hide(delay);
+      }
+    });
   }
 
   /** Shows/hides the tooltip */
   toggle(): void {
-    this._isTooltipVisible() ? this.hide() : this.show();
+    this._coalescedStyleScheduler.schedule(() => {
+      this._isTooltipVisible() ? this.hide() : this.show();
+    });
   }
 
   /** Returns true if the tooltip is currently visible to the user */
