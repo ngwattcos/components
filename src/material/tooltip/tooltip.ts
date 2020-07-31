@@ -217,7 +217,9 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     this._message = value != null ? `${value}`.trim() : '';
 
     if (!this._message && this._isTooltipVisible()) {
-      this.hide(0);
+      this._coalescedStyleScheduler.schedule(() => {
+        this.hide(0);
+      });
     } else {
       this._coalescedStyleScheduler.schedule(() => {
         this._setupPointerEnterEventsIfNeeded();
@@ -366,9 +368,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
 
   /** Shows/hides the tooltip */
   toggle(): void {
-    this._coalescedStyleScheduler.schedule(() => {
-      this._isTooltipVisible() ? this.hide() : this.show();
-    });
+    this._isTooltipVisible() ? this.hide() : this.show();
   }
 
   /** Returns true if the tooltip is currently visible to the user */
