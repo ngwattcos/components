@@ -17,6 +17,7 @@ import {
   TooltipComponent,
   MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER,
 } from './tooltip';
+import {_CoalescedStyleScheduler} from './coalesced-style-scheduler';
 
 @NgModule({
   imports: [
@@ -28,6 +29,9 @@ import {
   exports: [MatTooltip, TooltipComponent, MatCommonModule, CdkScrollableModule],
   declarations: [MatTooltip, TooltipComponent],
   entryComponents: [TooltipComponent],
-  providers: [MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER]
+  providers: [
+    MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER,
+    _CoalescedStyleScheduler
+  ]
 })
 export class MatTooltipModule {}
