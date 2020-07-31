@@ -152,33 +152,37 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
   @Input('matTooltipPosition')
   get position(): TooltipPosition { return this._position; }
   set position(value: TooltipPosition) {
-    if (value !== this._position) {
-      this._position = value;
+    this._coalescedStyleScheduler.schedule(() => {
+      if (value !== this._position) {
+        this._position = value;
 
-      if (this._overlayRef) {
-        this._updatePosition();
+        if (this._overlayRef) {
+          this._updatePosition();
 
-        if (this._tooltipInstance) {
-          this._tooltipInstance!.show(0);
+          if (this._tooltipInstance) {
+            this._tooltipInstance!.show(0);
+          }
+
+          this._overlayRef.updatePosition();
         }
-
-        this._overlayRef.updatePosition();
       }
-    }
+    });
   }
 
   /** Disables the display of the tooltip. */
   @Input('matTooltipDisabled')
   get disabled(): boolean { return this._disabled; }
   set disabled(value) {
-    this._disabled = coerceBooleanProperty(value);
+    this._coalescedStyleScheduler.schedule(() => {
+      this._disabled = coerceBooleanProperty(value);
 
-    // If tooltip is disabled, hide immediately.
-    if (this._disabled) {
-      this.hide(0);
-    } else {
-      this._setupPointerEnterEventsIfNeeded();
-    }
+      // If tooltip is disabled, hide immediately.
+      if (this._disabled) {
+        this.hide(0);
+      } else {
+        this._setupPointerEnterEventsIfNeeded();
+      }
+    });
   }
 
   /** The default delay in ms before showing the tooltip after show is called */
@@ -238,10 +242,12 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
   @Input('matTooltipClass')
   get tooltipClass() { return this._tooltipClass; }
   set tooltipClass(value: string|string[]|Set<string>|{[key: string]: any}) {
-    this._tooltipClass = value;
-    if (this._tooltipInstance) {
-      this._setTooltipClass(this._tooltipClass);
-    }
+    this._coalescedStyleScheduler.schedule(() => {
+      this._tooltipClass = value;
+      if (this._tooltipInstance) {
+        this._setTooltipClass(this._tooltipClass);
+      }
+    });
   }
 
   /** Manually-bound passive event listeners. */
@@ -353,12 +359,9 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
 
   /** Hides the tooltip after the delay in ms, defaults to tooltip-delay-hide or 0ms if no input */
   hide(delay: number = this.hideDelay): void {
-    this._coalescedStyleScheduler.schedule(() => {
-
-      if (this._tooltipInstance) {
-        this._tooltipInstance.hide(delay);
-      }
-    });
+    if (this._tooltipInstance) {
+      this._tooltipInstance.hide(delay);
+    }
   }
 
   /** Shows/hides the tooltip */
