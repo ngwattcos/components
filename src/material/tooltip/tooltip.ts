@@ -315,9 +315,9 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
       .subscribe(origin => {
         // Note that the focus monitor runs outside the Angular zone.
         if (!origin) {
-          this._ngZone.run(() => this.hide(0));
+          this._ngZone.run(() => this._coalescedStyleScheduler.schedule(() => this.hide(0)));
         } else if (origin === 'keyboard') {
-          this._ngZone.run(() => this.show());
+          this._ngZone.run(() => this._coalescedStyleScheduler.schedule(() => this.show()));
         }
     });
   }
@@ -357,7 +357,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     }
     console.log('scheduling show()');
     this._coalescedStyleScheduler.schedule(() => {
-      console.log('running show()');
+      console.log('\trunning show()');
       const overlayRef = this._createOverlay();
       this._detach();
       this._portal = this._portal || new ComponentPortal(TooltipComponent, this._viewContainerRef);
@@ -373,6 +373,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
 
   /** Hides the tooltip after the delay in ms, defaults to tooltip-delay-hide or 0ms if no input */
   hide(delay: number = this.hideDelay): void {
+    console.log(delay == 0 ? '\thiding tooltip now' : `\thiding tooltip instance after ${delay}`);
     if (this._tooltipInstance) {
       this._tooltipInstance.hide(delay);
     }
@@ -396,7 +397,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
     if (this._isTooltipVisible() && event.keyCode === ESCAPE && !hasModifierKey(event)) {
       event.preventDefault();
       event.stopPropagation();
-      this._ngZone.run(() => this.hide(0));
+      this._ngZone.run(() => this._coalescedStyleScheduler.schedule(() => this.hide(0)));
     }
   }
 
@@ -422,7 +423,7 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
         if (change.scrollableViewProperties.isOverlayClipped && this._tooltipInstance.isVisible()) {
           // After position changes occur and the overlay is clipped by
           // a parent scrollable then close the tooltip.
-          this._ngZone.run(() => this.hide(0));
+          this._ngZone.run(() => this._coalescedStyleScheduler.schedule(() => this.hide(0)));
         }
       }
     });
@@ -616,12 +617,14 @@ export class MatTooltip implements OnDestroy, AfterViewInit {
 
     const exitListeners: (readonly [string, EventListenerOrEventListenerObject])[] = [];
     if (this._platformSupportsMouseEvents()) {
-      exitListeners.push(['mouseleave', () => this.hide()]);
+      exitListeners.push(['mouseleave', () =>
+        this._coalescedStyleScheduler.schedule(() => this.hide(0))]);
     } else if (this.touchGestures !== 'off') {
       this._disableNativeGesturesIfNecessary();
       const touchendListener = () => {
         clearTimeout(this._touchstartTimeout);
-        this.hide(this._defaultOptions.touchendHideDelay);
+        this._coalescedStyleScheduler.schedule(() =>
+          this.hide(this._defaultOptions.touchendHideDelay));
       };
 
       exitListeners.push(
