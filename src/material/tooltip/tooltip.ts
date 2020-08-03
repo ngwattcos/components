@@ -793,7 +793,6 @@ export class TooltipComponent implements OnDestroy {
    */
   _markForCheck(): void {
     this._scheduler.schedule(() => {
-      console.log('\tnow running task');
     this._changeDetectorRef.markForCheck();
     });
   }
