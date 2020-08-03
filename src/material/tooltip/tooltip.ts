@@ -698,7 +698,8 @@ export class TooltipComponent implements OnDestroy {
 
   constructor(
     private _changeDetectorRef: ChangeDetectorRef,
-    private _breakpointObserver: BreakpointObserver) {}
+    private _breakpointObserver: BreakpointObserver,
+    private _scheduler: _CoalescedStyleScheduler) {}
 
   /**
    * Shows the tooltip with an animation originating from the provided origin
@@ -791,6 +792,9 @@ export class TooltipComponent implements OnDestroy {
    * can be problematic in components with OnPush change detection.
    */
   _markForCheck(): void {
+    this._scheduler.schedule(() => {
+      console.log('\tnow running task');
     this._changeDetectorRef.markForCheck();
+    });
   }
 }
